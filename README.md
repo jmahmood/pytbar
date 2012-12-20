@@ -1,6 +1,9 @@
 redis-t-bar
 ===========
 
-A python library that lets you extract Japan Posts' postal code database into a redis db.  〠
+A python library that parses Japan Posts' postal code CSV files and add them to DBs (currently only redis)  
 
-You must have @andymccurdy's redis-py library installed to use this.
+Dependencies:
+redis-py
+
+〠 BTW: T-bar refers to the Japanese Post Office symbol (〒)
