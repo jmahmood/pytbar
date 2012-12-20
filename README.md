@@ -1,4 +1,4 @@
 redis-t-bar
 ===========
 
-Parse and extract Japan Posts' postal code database into redis.  〠
+A python library that lets you extract Japan Posts' postal code database into a redis db.  〠
