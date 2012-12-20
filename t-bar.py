@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # Japanese Postal Codes (AKA: Ts with bars on top) Library
 
-import sys
 import codecs
 import csv
+
 import redis
 
 ### REDIS CONNECTION SINGLETON
@@ -95,10 +95,10 @@ def load_data_into_redis():
 	l = unicode_csv_reader(csv_content)
 	pipeline = RedisConnection().pipeline()
 	for x in l:
-		obj = RedisYuubinBangoItem(x)
+		obj = RedisYuubinBango(x)
 		obj.save(pipeline)
 	f.close()
 	pipeline.execute()
 
 def load_data_from_redis(postalcode):
-	return RedisYuubinBangoItem.load(postalcode)
+	return RedisYuubinBango.load(postalcode)
