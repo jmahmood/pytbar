@@ -7,5 +7,7 @@ Dependencies:
 redis-py
 
 Asides
+-------------
 〠 T-bar refers to the Japanese Post Office symbol (〒)
+
 〠 My friend Paul MacMahon did something similar in Ruby: https://github.com/pwim/yubinbang
