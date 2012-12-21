@@ -4,7 +4,9 @@ py-tbar
 A python library that parses Japan Posts' postal code CSV files and add them to DBs (currently only redis)  
 
 Dependencies:
-redis-py
+- Python 2.6+
+- redis-py
+- tornado
 
 Asides
 -------------
