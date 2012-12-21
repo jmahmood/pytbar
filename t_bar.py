@@ -3,10 +3,19 @@
 
 import codecs
 import csv
+import logging
+import re
+import json
+
 import redis
+import tornado.web
+from tornado.web import HTTPError
+import tornado.ioloop
+import tornado.options
+from tornado.options import define
 
 
-### REDIS CONNECTION SINGLETON
+### REDIS DB CONNECTION SINGLETON
 class RedisConnection(object):
     _instance = None
 
@@ -16,8 +25,9 @@ class RedisConnection(object):
         return cls._instance
 
 
-### CSV
+### Japanese Post Office provides information as a CSV
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
+
     # csv.py doesn't do Unicode; encode temporarily as UTF-8:
     csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
                             dialect=dialect, **kwargs)
@@ -26,6 +36,7 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
         yield [unicode(cell, 'utf-8') for cell in row]
 
 
+### Python's CSV library doesn't work with unicode data.
 def utf_8_encoder(unicode_csv_data):
     for line in unicode_csv_data:
         yield line.encode('utf-8')
@@ -90,7 +101,7 @@ class RedisYuubinBango(YuubinBango):
 
 def load_data_into_redis():
     # url = "http://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip"
-    f = open("/Users/(whatever)/Downloads/KEN_ALL.CSV", "r")
+    f = open("/Users/jawaad/Downloads/KEN_ALL.CSV", "r")
     csv_content = codecs.getreader("CP932")(f)
     l = unicode_csv_reader(csv_content)
     pipeline = RedisConnection().pipeline()
@@ -103,3 +114,42 @@ def load_data_into_redis():
 
 def load_data_from_redis(postalcode):
     return RedisYuubinBango.load(postalcode)
+
+class YuubinServer(tornado.web.RequestHandler):
+
+    def head(self):
+        logging.debug("Postal Code HEAD call")
+
+    def data(self):
+        postalcode = self.get_argument("postalcode")
+        if not postalcode:
+            raise HTTPError(400,"You must include the 'postalcode' variable in the GET command")
+
+        non_decimal = re.compile(r'[^\d]+')
+        non_decimal.sub('', postalcode)
+
+        if len(postalcode) > 7 or len(postalcode) < 6:
+            raise HTTPError(400,"The postal code is invalid. %s" % postalcode )
+
+        return RedisYuubinBango.load(postalcode)
+
+
+    def get(self):
+        logging.debug("Postal Code GET call")
+        self.set_header('Content-Type', 'application/javascript')
+        self.write(json.dumps(self.data().to_dict()))
+
+
+# Run the Tornado server if this is run directly.
+if __name__ == "__main__":
+    define("port", default=8887, help="run on the given port", type=int)
+
+    tornado.options.parse_config_file("tbar_server.conf")
+    tornado.options.parse_command_line()
+
+    application = tornado.web.Application([
+        (r"/", YuubinServer),
+    ])
+    logging.info("starting postal code web server on port %d" % tornado.options.options['port'].value())
+    application.listen(int(tornado.options.options['port'].value()) )
+    tornado.ioloop.IOLoop.instance().start()
