@@ -112,10 +112,7 @@ def load_data_into_redis():
     pipeline.execute()
 
 
-def load_data_from_redis(postalcode):
-    return RedisYuubinBango.load(postalcode)
-
-class YuubinServer(tornado.web.RequestHandler):
+class YuubinJsonServer(tornado.web.RequestHandler):
 
     def head(self):
         logging.debug("Postal Code HEAD call")
@@ -123,16 +120,16 @@ class YuubinServer(tornado.web.RequestHandler):
     def data(self):
         postalcode = self.get_argument("postalcode")
         if not postalcode:
-            raise HTTPError(400,"You must include the 'postalcode' variable in the GET command")
+            raise HTTPError(400, "You must include the 'postalcode' "
+                            "variable in the GET command")
 
         non_decimal = re.compile(r'[^\d]+')
         non_decimal.sub('', postalcode)
 
         if len(postalcode) > 7 or len(postalcode) < 6:
-            raise HTTPError(400,"The postal code is invalid. %s" % postalcode )
+            raise HTTPError(400, "The postal code is invalid. %s" % postalcode)
 
         return RedisYuubinBango.load(postalcode)
-
 
     def get(self):
         logging.debug("Postal Code GET call")
@@ -148,8 +145,9 @@ if __name__ == "__main__":
     tornado.options.parse_command_line()
 
     application = tornado.web.Application([
-        (r"/", YuubinServer),
+        (r"/", YuubinJsonServer),
     ])
-    logging.info("starting postal code web server on port %d" % tornado.options.options['port'].value())
-    application.listen(int(tornado.options.options['port'].value()) )
+    logging.info("starting postal code web server on port %d"
+                 % tornado.options.options['port'].value())
+    application.listen(int(tornado.options.options['port'].value()))
     tornado.ioloop.IOLoop.instance().start()
