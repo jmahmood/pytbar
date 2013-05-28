@@ -28,7 +28,7 @@ class RedisConnection(object):
 
         if not cls._instance:
             logging.debug("Creating new Redis connection")
-            cls._instance = redis.Redis(host='localhost', port=kwargs.get("port", 6379))
+            cls._instance = redis.Redis(host='localhost', port=int(kwargs.get("port", 6379)))
         return cls._instance
 
 
@@ -46,7 +46,7 @@ class RedisYuubinBango(YuubinBango):
 
     @classmethod
     def load(cls, postal_code):
-        connection = RedisConnection()
+        connection = RedisConnection(port=PORT)
         d = connection.hgetall(postal_code)
         arr = [d[k].decode("utf8") for k in cls.fields()]
         return cls(arr)
@@ -59,7 +59,7 @@ def load_data_into_redis():
         with open(INIT_FILE, "r") as f:
             csv_content = codecs.getreader("CP932")(f)
             l = unicode_csv_reader(csv_content)
-            pipeline = RedisConnection().pipeline()
+            pipeline = RedisConnection(port=PORT).pipeline()
             for x in l:
                 obj = RedisYuubinBango(x)
                 obj.save(pipeline)
