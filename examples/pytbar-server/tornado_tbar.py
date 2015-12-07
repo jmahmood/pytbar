@@ -1,13 +1,12 @@
 import logging
 import re
 import json
+from pytbar.redis_tbar import RedisYuubinBango
 import redis
 
 import tornado.web
 import tornado.options
 import tornado.ioloop
-
-from redis_tbar import *
 
 
 class YuubinJsonServer(tornado.web.RequestHandler):
