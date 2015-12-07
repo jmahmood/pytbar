@@ -27,6 +27,9 @@ How To Use
 
          loaded_data = redis_tbar.RedisYuubinBango.load(connection=redis.StrictRedis(port=6379, host='localhost'), postal_code='1640001')
 
+TODO
+-----
+Loading data into Postgres and other similar databases.
 
 Asides
 -------------

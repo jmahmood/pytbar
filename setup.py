@@ -4,7 +4,7 @@ __author__ = 'jawaad'
 from distutils.core import setup
 
 setup(name='pytbar',
-      version='0.210',
+      version='0.300',
       description='Library that converts the Japanese Post Office\'s CSV files into a python class.  These are '
                   'thereafter added to a database.',
       author='Jawaad Mahmood',
