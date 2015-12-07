@@ -16,24 +16,25 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
 
 def utf_8_encoder(unicode_csv_data):
     """Converts every unicode string in an array into a UTF8-encoded string"""
-    return (line.encode('utf-8') for line in unicode_csv_data)
+    return [line.encode('utf-8') for line in unicode_csv_data]
 
 
 class YuubinBango(object):
     """This object is a container for the data the Japanese Post Office makes available online."""
-
-    def __init__(self, arr=False, d=False):
-        if arr:
-            self._arr = arr
-            self.nlgc, self.old_code, self.code, self.kk_pref, self.kk_city, self.kk_local, self.pref, self.city, \
-            self.local, self.has_multiple_local, self.req_city_entry, self.req_street_entry, self.multiple_locals, \
-            self.recently_changed, self._rcr = arr
-
     def __str__(self):
         return self.code
 
     def __unicode__(self):
         return self.code
+
+    def __init__(self, arr=False, d=False):
+        if arr:
+            arr = [x.strip() for x in arr]
+            self._arr = arr
+            self.nlgc, self.old_code, self.code, self.kk_pref, self.kk_city, self.kk_local, self.pref, self.city, \
+            self.local, self.has_multiple_local, self.req_city_entry, self.req_street_entry, self.multiple_locals, \
+            self.recently_changed, self._rcr = arr
+
 
     @staticmethod
     def fields():
