@@ -9,6 +9,25 @@ Dependencies:
 - Python 2.7+
 - redis-py
 
+How To Use
+------------
+1. Get the CSV data (You can get it from http://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip)
+
+2. Load your data into Redis.  (Change variables into something that works for you)
+
+        self.connection = redis.StrictRedis(port=6379, host='localhost')
+
+        init = {
+            'init_file': '/path/to/file.csv',
+            'connection': self.connection
+        }
+        redis_tbar.load_data_into_redis(**init)
+
+3. You can now query the data at any time by passing a redis instance and the postal code you want.
+
+         loaded_data = redis_tbar.RedisYuubinBango.load(connection=redis.StrictRedis(port=6379, host='localhost'), postal_code='1640001')
+
+
 Asides
 -------------
 〠 T-bar refers to the Japanese Post Office symbol (〒)
