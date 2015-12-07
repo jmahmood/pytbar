@@ -10,6 +10,7 @@ import tornado.ioloop
 
 
 class YuubinJsonServer(tornado.web.RequestHandler):
+
     NON_DECIMAL = re.compile(r'[^\d]+')
     CONN = redis.StrictRedis(port=6379, host='localhost')
 
