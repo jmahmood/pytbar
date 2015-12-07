@@ -1,15 +1,13 @@
-py-tbar
-===========
+py-tbar v0.3
+============
 
-This consists of two parts:
-- A library that parses Japan Posts' postal code CSV files and adds the parsed data to a  DBs
-  - We currently only support Redis.
-- A Tornado server that serves JSON data when it is sent a Japanese postal code.
+Py-tbar is a library that parses Japan Posts' postal code CSV files and adds the parsed data to a DB.
+
+The current library only supports Redis.
 
 Dependencies:
-- Python 2.6+
+- Python 2.7+
 - redis-py
-- tornado
 
 Asides
 -------------
@@ -17,11 +15,13 @@ Asides
 
 〠 My friend Paul MacMahon did something similar in Ruby: https://github.com/pwim/yubinbang
 
+〠 We previously included a tornado server that handled this, but it is removed.  You can find it as part of py-tbar-server.
+
 License
 -------------
 MIT License
 
-Copyright (c) 2012 Jawaad Mahmood
+Copyright (c) 2015 Jawaad Mahmood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

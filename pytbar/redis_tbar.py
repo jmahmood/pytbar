@@ -1,71 +1,42 @@
 __author__ = 'jawaad'
 
-
 import codecs
 import logging
-
 import redis
 from tbar import YuubinBango, unicode_csv_reader
-
-from ConfigParser import ConfigParser
-
-
-config = ConfigParser()
-config.read('redis.config')
-PORT = config.get('redis', 'port')
-INIT_FILE = config.get('redis', 'initfile')
-
-
-### REDIS DB CONNECTION SINGLETON
-class RedisConnection(object):
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        """Gets a connection to Redis.
-        If you send a port in the first request made to it, it will use that port, otherwise it will use 6379"""
-
-        logging.debug("Retrieving Redis DB connection")
-
-        if not cls._instance:
-            logging.debug("Creating new Redis connection")
-            cls._instance = redis.Redis(host='localhost', port=int(kwargs.get("port", 6379)))
-        return cls._instance
+import os.path
 
 
 class RedisYuubinBango(YuubinBango):
     """Enables the use of Redis-DB with Japanese Postal Code data."""
 
-    def save(self, pipeline=False):
+    def save(self, connection):
         """Uses pipeline / connection sent by default.
         You should use Redis pipelines since they are faster than simple connections"""
-
-        if not pipeline:
-            pipeline = RedisConnection(port=PORT)
-
-        return pipeline.hmset(self.code, self.to_dict())
+        return connection.pipeline().hmset(self.code, self.to_dict())
 
     @classmethod
-    def load(cls, postal_code):
-        connection = RedisConnection(port=PORT)
+    def load(cls, connection, postal_code):
         d = connection.hgetall(postal_code)
-        arr = [d[k].decode("utf8") for k in cls.fields()]
-        return cls(arr)
+        return cls([d[k].decode("utf8") for k in cls.fields()])
 
 
-def load_data_into_redis():
+def load_data_into_redis(cls, host=6379, port='localhost'):
     """Initializes the Redis DB from initfile in the Redis.config file.
     Download the file from here: http://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip"""
+    init_file = os.path.join(os.path.dirname(__file__), 'KEN_ALL.CSV')
+
     try:
-        with open(INIT_FILE, "r") as f:
+        with open(init_file, "r") as f:
             csv_content = codecs.getreader("CP932")(f)
-            l = unicode_csv_reader(csv_content)
-            pipeline = RedisConnection(port=PORT).pipeline()
-            for x in l:
+            csv_line_gen = unicode_csv_reader(csv_content)
+            pipeline = redis.StrictRedis(port=port, host=host).pipeline()
+            for x in csv_line_gen:
                 obj = RedisYuubinBango(x)
                 obj.save(pipeline)
             f.close()
             pipeline.execute()
     except IOError:
-        logging.exception("Could not open Initialization File: %s" % INIT_FILE)
+        logging.exception("Could not open Initialization File: {}".format(cls.INIT_FILE))
 
 

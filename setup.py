@@ -11,4 +11,4 @@ setup(name='pytbar',
       author_email='ideas@jawaadmahmood.com',
       url='https://github.com/jmahmood/pytbar/',
       license='MIT',
-      packages=['pytbar'])
+      packages=['pytbar'], requires=['redis'])
